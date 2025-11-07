@@ -21,16 +21,19 @@ class AuthRepositoryImpl implements AuthRepository {
       final request = LoginRequest(email: email, password: password);
       final response = await _apiClient.login(request);
 
-      // 토큰 저장
-      await _tokenStorage.saveAccessToken(response.accessToken);
-      await _tokenStorage.saveRefreshToken(response.refreshToken);
-      await _tokenStorage.setLoggedIn(true);
+      // ApiResponse 형식으로 변경되어 data 필드에서 토큰 정보 추출
+      if (response.isSuccess && response.data != null) {
+        // 토큰 저장
+        await _tokenStorage.saveAccessToken(response.data!.accessToken);
+        await _tokenStorage.saveRefreshToken(response.data!.refreshToken);
+        await _tokenStorage.setLoggedIn(true);
 
-      // JWT에서 사용자 정보 추출 (간단한 디코딩 - 실제로는 jwt_decoder 패키지 사용 권장)
-      // 여기서는 로그인 성공만 확인
-
-      _logger.i('로그인 성공');
-      return true;
+        _logger.i('로그인 성공: ${response.message}');
+        return true;
+      } else {
+        _logger.e('로그인 실패: ${response.message}');
+        return false;
+      }
     } catch (e) {
       _logger.e('로그인 실패: $e');
       return false;
@@ -45,10 +48,16 @@ class AuthRepositoryImpl implements AuthRepository {
         password: password,
         nickname: nickname,
       );
-      await _apiClient.signup(request);
+      final response = await _apiClient.signup(request);
 
-      _logger.i('회원가입 성공');
-      return true;
+      // ApiResponse 형식으로 변경됨
+      if (response.isSuccess) {
+        _logger.i('회원가입 성공: ${response.message}');
+        return true;
+      } else {
+        _logger.e('회원가입 실패: ${response.message}');
+        return false;
+      }
     } catch (e) {
       _logger.e('회원가입 실패: $e');
       return false;

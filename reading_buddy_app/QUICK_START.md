@@ -70,7 +70,7 @@ flutter pub run build_runner build --delete-conflicting-outputs
 `lib/core/constants/api_constants.dart` 파일을 열고 서버 주소를 변경하세요:
 
 ```dart
-static const String baseUrl = 'http://your-server-url.com';
+static const String baseUrl = 'http://192.168.0.100:8080';
 // 예: 'http://192.168.0.100:8080' (로컬 테스트)
 // 예: 'https://api.readingbuddy.com' (실제 서버)
 ```

@@ -7,6 +7,7 @@ import '../../features/auth/data/models/token_response.dart';
 import '../../features/auth/data/models/device_code_request.dart';
 import '../../features/auth/data/models/device_login_response.dart';
 import '../../features/auth/data/models/api_response.dart';
+import '../../features/auth/data/models/empty_response.dart';
 import '../../features/dashboard/data/models/stage_info_response.dart';
 import '../../features/dashboard/data/models/stage_try_avg_response.dart';
 import '../../features/dashboard/data/models/stage_correct_rate_response.dart';
@@ -23,17 +24,21 @@ abstract class ApiClient {
 
   /// 로그인
   @POST(ApiConstants.login)
-  Future<TokenResponse> login(@Body() LoginRequest request);
+  Future<ApiResponse<TokenResponse>> login(@Body() LoginRequest request);
 
   /// 회원가입
   @POST(ApiConstants.signup)
-  Future<void> signup(@Body() SignupRequest request);
+  Future<ApiResponse<EmptyResponse>> signup(@Body() SignupRequest request);
 
   /// 토큰 재발급
   @POST(ApiConstants.reissueToken)
-  Future<TokenResponse> reissueToken(
+  Future<ApiResponse<TokenResponse>> reissueToken(
     @Body() Map<String, dynamic> request,
   );
+
+  /// 출석 체크
+  @POST(ApiConstants.attend)
+  Future<ApiResponse<EmptyResponse>> checkAttendance();
 
   /// Device Code 생성 (VR용)
   @GET(ApiConstants.activation)
@@ -41,7 +46,7 @@ abstract class ApiClient {
 
   /// Device Code 인증 (앱용)
   @POST(ApiConstants.authDevice)
-  Future<ApiResponse<void>> authorizeDevice(
+  Future<ApiResponse<EmptyResponse>> authorizeDevice(
     @Body() DeviceCodeRequest request,
   );
 
@@ -94,5 +99,21 @@ abstract class ApiClient {
   @GET(ApiConstants.tryPhonemesRank)
   Future<ApiResponse<List<PhonemeRankResponse>>> getTryPhonemesRank(
     @Query('limit') int limit,
+  );
+
+  /// KC 숙련도 변화 추이 조회
+  @GET(ApiConstants.kcMasteryTrend)
+  Future<HttpResponse<dynamic>> getKcMasteryTrend(
+    @Query('kcId') int kcId,
+    @Query('startdate') String? startDate,
+    @Query('enddate') String? endDate,
+  );
+
+  /// Stage별 현재 숙련도 조회
+  @GET(ApiConstants.stageMastery)
+  Future<HttpResponse<dynamic>> getStageMastery(
+    @Query('stage') String stage,
+    @Query('startdate') String? startDate,
+    @Query('enddate') String? endDate,
   );
 }

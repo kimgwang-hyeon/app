@@ -70,20 +70,24 @@ class DioClient {
               );
 
               if (response.statusCode == 200) {
-                final newAccessToken = response.data['accessToken'];
-                final newRefreshToken = response.data['refreshToken'];
+                // ApiResponse 형식으로 변경되어 data 필드에서 토큰 정보 추출
+                final responseData = response.data;
+                if (responseData['success'] == true && responseData['data'] != null) {
+                  final newAccessToken = responseData['data']['accessToken'];
+                  final newRefreshToken = responseData['data']['refreshToken'];
 
-                // 새 토큰 저장
-                await _tokenStorage.saveAccessToken(newAccessToken);
-                await _tokenStorage.saveRefreshToken(newRefreshToken);
+                  // 새 토큰 저장
+                  await _tokenStorage.saveAccessToken(newAccessToken);
+                  await _tokenStorage.saveRefreshToken(newRefreshToken);
 
-                // 원래 요청 재시도
-                final options = error.requestOptions;
-                options.headers[ApiConstants.authorization] =
-                    '${ApiConstants.bearer} $newAccessToken';
+                  // 원래 요청 재시도
+                  final options = error.requestOptions;
+                  options.headers[ApiConstants.authorization] =
+                      '${ApiConstants.bearer} $newAccessToken';
 
-                final retryResponse = await _dio.fetch(options);
-                return handler.resolve(retryResponse);
+                  final retryResponse = await _dio.fetch(options);
+                  return handler.resolve(retryResponse);
+                }
               }
             }
           } catch (e) {

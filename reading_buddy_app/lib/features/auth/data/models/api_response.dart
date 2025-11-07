@@ -4,12 +4,13 @@ part 'api_response.g.dart';
 
 @JsonSerializable(genericArgumentFactories: true)
 class ApiResponse<T> {
-  final String status;
+  @JsonKey(name: 'success')
+  final bool success;
   final String message;
   final T? data;
 
   ApiResponse({
-    required this.status,
+    required this.success,
     required this.message,
     this.data,
   });
@@ -23,6 +24,6 @@ class ApiResponse<T> {
   Map<String, dynamic> toJson(Object? Function(T value) toJsonT) =>
       _$ApiResponseToJson(this, toJsonT);
 
-  bool get isSuccess => status == 'success';
-  bool get isError => status == 'error';
+  bool get isSuccess => success == true;
+  bool get isError => success == false;
 }
